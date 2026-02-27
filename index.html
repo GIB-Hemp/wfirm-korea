@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>탑승객 실시간 대시보드</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React & ReactDOM CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel (JSX Compiler) CDN -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes scaleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+    .animate-scaleIn { animation: scaleIn 0.3s ease-out forwards; }
+    body { -webkit-tap-highlight-color: transparent; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo, useEffect, useCallback } = React;
+
+    // --- SVG Icon Components ---
+    const IconProps = { stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", fill: "none" };
+    const Users = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" className={className} {...IconProps}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
+    const Bus = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" className={className} {...IconProps}><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="15.5" cy="18.5" r="2.5"/></svg>;
+    const Calendar = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" className={className} {...IconProps}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
+    const CheckCircle2 = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" className={className} {...IconProps}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>;
+    const Phone = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" className={className} {...IconProps}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
+    const Building = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" className={className} {...IconProps}><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>;
+    const AlertTriangle = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" className={className} {...IconProps}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>;
+    const RefreshCw = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" className={className} {...IconProps}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>;
+    const UserCircle = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" className={className} {...IconProps}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>;
+    const Clock = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" className={className} {...IconProps}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+    const Copy = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" className={className} {...IconProps}><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>;
+    const ExternalLink = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" className={className} {...IconProps}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>;
+
+    const SYNC_INTERVAL_MS = 30000; // 30초 갱신
+
+    function App() {
+      const [data, setData] = useState([]);
+      const [isLoading, setIsLoading] = useState(true);
+      const [isSyncing, setIsSyncing] = useState(false);
+      const [lastUpdated, setLastUpdated] = useState(null);
+      const [connectionStatus, setConnectionStatus] = useState('connecting');
+      const [toastMessage, setToastMessage] = useState(null);
+      const [errorMessage, setErrorMessage] = useState('');
+
+      const parseCSV = useCallback((str) => {
+        const arr = [];
+        let quote = false;
+        let row = [], col = '';
+        for (let i = 0; i < str.length; i++) {
+          let cc = str[i], nc = str[i+1];
+          if (cc === '"' && quote && nc === '"') { col += '"'; ++i; continue; }
+          if (cc === '"') { quote = !quote; continue; }
+          if (cc === ',' && !quote) { row.push(col.trim()); col = ''; continue; }
+          if (cc === '\n' && !quote) {
+            row.push(col.trim()); arr.push(row);
+            row = []; col = ''; continue;
+          }
+          if (cc === '\r' && !quote) continue;
+          col += cc;
+        }
+        if (col !== '' || row.length > 0) { row.push(col.trim()); arr.push(row); }
+        return arr;
+      }, []);
+
+      const fetchData = useCallback(async (isInitial = false) => {
+        if (!isInitial) setIsSyncing(true);
+        try {
+          const sheetId = '1XOnCqh0XbPl3IMYGU8xIwKHWUYLtFwiUJyBS0swFa6Y';
+          const gid = '2002329569';
+          // 브라우저 캐시 무력화 파라미터 (_) 적용
+          const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&gid=${gid}&_=${new Date().getTime()}`;
+          
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`서버 응답 오류 (상태 코드: ${response.status})`);
+          
+          const csvText = await response.text();
+          
+          if (csvText.trim().startsWith('<!DOCTYPE html>') || csvText.trim().startsWith('<html')) {
+            throw new Error('구글 시트 접근 권한이 없습니다. 시트의 공유 설정을 "링크가 있는 모든 사용자"로 변경해주세요.');
+          }
+
+          const rows = parseCSV(csvText);
+          if (rows.length < 2) throw new Error('시트에 추출할 데이터가 충분하지 않거나 비어있습니다.');
+
+          const headers = rows[0].map(h => h.replace(/^"|"$/g, '').trim());
+          const getIdx = (keywords, fallbackIdx) => {
+            const idx = headers.findIndex(h => keywords.some(k => h.includes(k)));
+            return idx !== -1 ? idx : fallbackIdx;
+          };
+          
+          // 동적 인덱스 매핑
+          const iShuttle = getIdx(['셔틀', '안동역 ↔'], 1);
+          const iName = getIdx(['성함', '성명', '이름', '참석자'], 2);
+          const iDept = getIdx(['소속 기관', '소속', '부서', '기관', '회사'], 3);
+          const iPos = getIdx(['직위', '직급', '직책'], 4);
+          const iContact = getIdx(['연락처', '전화', '휴대폰', '번호'], 5);
+          const iTime = getIdx(['안동역 또는', '도착', '탑승시간', '시간'], 7);
+
+          const parsedData = rows.slice(1).map((r, index) => {
+            const shuttle = r[iShuttle] ? r[iShuttle].replace(/^"|"$/g, '').trim() : '';
+            if (shuttle.includes('아니오')) return null;
+
+            const name = r[iName] ? r[iName].replace(/^"|"$/g, '').trim() : '';
+            if (!name) return null;
+
+            const department = r[iDept] ? r[iDept].replace(/^"|"$/g, '').trim() : '-';
+            const position = r[iPos] ? r[iPos].replace(/^"|"$/g, '').trim() : '-';
+            const contactStr = r[iContact] ? r[iContact].replace(/^"|"$/g, '').trim() : '-';
+            const timeStr = r[iTime] ? r[iTime].replace(/^"|"$/g, '').trim() : '시간 미정';
+            
+            return { id: index + 1, name, department, position, contact: contactStr, time: timeStr };
+          }).filter(item => item !== null);
+
+          setData(parsedData);
+          setConnectionStatus('success');
+          setErrorMessage('');
+        } catch (error) {
+          console.error('데이터 연동 실패:', error);
+          setData([]);
+          setConnectionStatus('error');
+          
+          // 네트워크 에러 메시지 한글화 및 가이드 완벽 제공
+          let displayError = error.message;
+          if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+            displayError = "브라우저 네트워크 차단 또는 권한(CORS) 오류입니다. 구글 시트가 정상적으로 '링크 공개' 되었는지 확인하시거나, 사용 중인 브라우저의 광고/추적 차단 확장프로그램을 일시 중지해주세요.";
+          }
+          setErrorMessage(displayError);
+        } finally {
+          setLastUpdated(new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+          setIsLoading(false);
+          setIsSyncing(false);
+        }
+      }, [parseCSV]);
+
+      useEffect(() => {
+        fetchData(true);
+        const interval = setInterval(() => fetchData(false), SYNC_INTERVAL_MS);
+        return () => clearInterval(interval);
+      }, [fetchData]);
+
+      const summaryCount = data.length;
+      const fadeInRow = "transition-all duration-300 hover:bg-indigo-50/60 hover:shadow-sm";
+
+      const getCleanNumber = (contact) => contact.replace(/[^0-9+]/g, '');
+
+      const handleCopyAndNotify = (contact, name) => {
+        const cleanNumber = getCleanNumber(contact);
+        try {
+          const textArea = document.createElement("textarea");
+          textArea.value = cleanNumber;
+          textArea.style.position = "fixed";
+          textArea.style.left = "-9999px";
+          textArea.style.top = "-9999px";
+          document.body.appendChild(textArea);
+          
+          textArea.focus();
+          textArea.select();
+          
+          const successful = document.execCommand('copy');
+          document.body.removeChild(textArea);
+          
+          if (successful) {
+            setToastMessage(`📞 ${name}님의 연락처 복사 완료 (발신 연결 중...)`);
+            setTimeout(() => setToastMessage(null), 3000);
+          } else {
+            console.warn('복사 실패: 브라우저 지원 불가');
+          }
+        } catch (err) {
+          console.error('복사 중 오류 발생:', err);
+        }
+      };
+
+      if (isLoading) {
+        return (
+          <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 gap-4">
+            <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+            <div className="text-lg text-slate-500 font-medium tracking-wide">데이터 허브 연결 및 권한 검증 중...</div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="min-h-screen p-3 md:p-8 animate-fadeIn relative font-sans">
+          <div className="max-w-7xl mx-auto space-y-4 md:space-y-6 pb-20">
+            
+            {/* Header */}
+            <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-white p-5 md:p-6 rounded-3xl shadow-sm border border-slate-200/60 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl opacity-50 transform translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+              
+              <div className="relative z-10 w-full lg:w-auto">
+                <h1 className="text-xl md:text-2xl font-bold text-slate-800 flex items-center gap-3">
+                  <span className="p-2 md:p-2.5 bg-indigo-100 rounded-xl text-indigo-600 shadow-sm"><Bus size={22} className="md:w-6 md:h-6" /></span>
+                  탑승객 실시간 대시보드
+                </h1>
+                
+                <div className="mt-3 flex flex-wrap items-center gap-2 md:gap-3 text-xs md:text-sm font-medium">
+                  {connectionStatus === 'success' ? (
+                    <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-md shadow-sm">
+                      <CheckCircle2 size={14} /> 실시간 연동 중
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 text-rose-600 bg-rose-50 border border-rose-100 px-2 py-1 rounded-md shadow-sm">
+                      <AlertTriangle size={14} /> 연동 차단됨
+                    </span>
+                  )}
+                  <span className="text-slate-300">|</span>
+                  <span className="flex items-center gap-1 text-slate-500"><Clock size={12} /> {lastUpdated}</span>
+                  {isSyncing && (
+                    <span className="flex items-center gap-1 text-[10px] md:text-xs text-indigo-500 font-bold ml-1 animate-pulse">
+                      <RefreshCw size={10} className="animate-spin" /> Fetching
+                    </span>
+                  )}
+                </div>
+              </div>
+            </header>
+
+            {/* ERROR BANNER */}
+            {connectionStatus === 'error' && (
+              <div className="bg-rose-50 border-2 border-rose-200 p-6 md:p-8 rounded-3xl flex flex-col items-center justify-center text-center animate-scaleIn shadow-sm">
+                <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mb-4">
+                  <AlertTriangle size={32} className="text-rose-600" />
+                </div>
+                <h2 className="text-xl md:text-2xl font-black text-rose-800 mb-2">데이터 연동 실패</h2>
+                <p className="text-rose-600 font-medium mb-6 text-sm md:text-base max-w-lg">
+                  구글 스프레드시트 설정 확인 또는 브라우저 환경 점검이 필요합니다. <br className="hidden md:block"/>
+                  아래 링크를 눌러 <strong>[공유] &rarr; [일반 액세스]가 '링크가 있는 모든 사용자'</strong>로 정상 반영되었는지 한 번 더 확인해주세요.
+                </p>
+                <a 
+                  href="https://docs.google.com/spreadsheets/d/1XOnCqh0XbPl3IMYGU8xIwKHWUYLtFwiUJyBS0swFa6Y/edit" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-sm"
+                >
+                  <ExternalLink size={18} /> 구글 시트 접근성 점검하기
+                </a>
+                <p className="text-xs text-rose-400 mt-4 font-mono">{errorMessage}</p>
+              </div>
+            )}
+
+            {/* Summary Cards */}
+            {connectionStatus === 'success' && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+                <div className="bg-gradient-to-br from-indigo-50 to-blue-50/50 p-6 md:p-8 rounded-3xl shadow-sm border border-indigo-100 flex flex-col justify-center relative overflow-hidden group">
+                  <div className="absolute right-0 bottom-0 opacity-10 transform translate-x-4 translate-y-4 group-hover:scale-110 transition-transform duration-500">
+                    <Users size={100} className="md:w-32 md:h-32" />
+                  </div>
+                  <div className="flex items-center gap-2 mb-2 md:mb-3 text-indigo-700 font-bold text-sm md:text-base">🙋‍♂️ 전체 탑승 대기 인원</div>
+                  <div className="text-4xl md:text-5xl font-black text-slate-800 mt-1 flex items-baseline gap-2">
+                    {summaryCount} <span className="text-lg md:text-xl font-bold text-slate-500">명</span>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-2 bg-gradient-to-br from-slate-50 to-white p-5 md:p-8 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-center">
+                  <div className="flex items-center gap-2 mb-3 md:mb-4 text-slate-700 font-bold text-sm md:text-base">📋 탑승자 명단 개요</div>
+                  <div className="text-slate-700 mt-1 text-sm md:text-lg leading-relaxed font-medium bg-slate-100/50 p-3 md:p-4 rounded-2xl border border-slate-100 min-h-[4rem] md:min-h-[5rem] max-h-[12rem] overflow-y-auto">
+                    {summaryCount > 0 ? (
+                      <div className="flex flex-wrap gap-2 md:gap-2.5">
+                        {data.map(item => (
+                          <span key={item.id} className="inline-flex items-center px-2.5 md:px-3.5 py-1 md:py-1.5 rounded-full bg-white border border-slate-200 shadow-sm text-xs md:text-sm font-bold text-indigo-800 hover:bg-indigo-50 hover:border-indigo-200 transition-colors cursor-default">
+                            <UserCircle size={14} className="text-indigo-400 mr-1 md:mr-1.5" />{item.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-slate-400 flex items-center gap-2 h-full text-sm">등록된 셔틀 탑승객이 없습니다.</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Main Data Table/Cards */}
+            {connectionStatus === 'success' && (
+              <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="p-4 md:p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/80">
+                  <h3 className="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <Calendar size={18} className="text-indigo-500" />세부 탑승 리스트
+                  </h3>
+                </div>
+                
+                {/* Mobile View */}
+                <div className="block md:hidden p-3 space-y-3 bg-slate-50/30">
+                  {data.length > 0 ? (
+                    data.map((item, index) => (
+                      <div key={item.id} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-3 animate-fadeIn">
+                        <div className="flex justify-between items-center border-b border-slate-50 pb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-bold">{item.name.charAt(0)}</div>
+                            <span className="font-bold text-lg text-slate-800">{item.name}</span>
+                          </div>
+                          <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">No. {index + 1}</span>
+                        </div>
+                        
+                        <div className="flex flex-col gap-2 text-sm text-slate-600 font-medium px-1">
+                          <div className="flex items-center gap-2">
+                            <Building size={14} className="text-slate-400" />
+                            <span className="truncate">{item.department} <span className="text-slate-300">|</span> <span className="text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">{item.position}</span></span>
+                          </div>
+                          
+                          <a 
+                            href={`tel:${getCleanNumber(item.contact)}`}
+                            onClick={() => handleCopyAndNotify(item.contact, item.name)}
+                            className="flex items-center justify-between bg-emerald-50/50 hover:bg-emerald-100 border border-emerald-100 text-slate-800 py-2.5 px-3 rounded-xl transition-all w-full mt-1 cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Phone size={16} className="text-emerald-500" />
+                              <span className="font-bold text-emerald-800">{item.contact}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-[10px] text-emerald-700 font-bold bg-white px-2 py-1 rounded-md shadow-sm"><Copy size={12} /> 발신/복사</div>
+                          </a>
+                        </div>
+
+                        <div className="pt-3 border-t border-slate-100 mt-1">
+                          <span className="inline-flex items-center px-3 py-2 rounded-lg text-xs font-bold shadow-sm bg-indigo-50 text-indigo-700 border border-indigo-100 w-full break-all">
+                            🕒 탑승/입력시간: {item.time}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-12 text-center text-slate-400 font-medium">등록된 탑승객 데이터가 없습니다.</div>
+                  )}
+                </div>
+
+                {/* Desktop View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left border-collapse whitespace-nowrap min-w-[800px]">
+                    <thead>
+                      <tr className="bg-slate-50 text-slate-600 text-sm border-b border-slate-200">
+                        <th className="py-4 px-4 font-bold text-center w-12 align-middle">No</th>
+                        <th className="py-4 px-4 font-bold align-middle">성명</th>
+                        <th className="py-4 px-4 font-bold align-middle">직위</th>
+                        <th className="py-4 px-4 font-bold align-middle">소속</th>
+                        <th className="py-4 px-4 font-bold align-middle">연락처</th>
+                        <th className="py-4 px-4 font-bold align-middle border-l border-slate-200 text-indigo-700">탑승/입력시간 (원문)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {data.length > 0 ? (
+                        data.map((item, index) => (
+                          <tr key={item.id} className={fadeInRow}>
+                            <td className="py-4 px-4 text-center text-slate-400 text-sm font-semibold">{index + 1}</td>
+                            <td className="py-4 px-4 font-bold text-slate-800 text-base">{item.name}</td>
+                            <td className="py-4 px-4 text-slate-600 font-medium"><span className="bg-slate-100 text-slate-600 px-2 py-1 rounded text-sm">{item.position}</span></td>
+                            <td className="py-4 px-4 text-slate-600 font-medium"><div className="flex items-center gap-1.5"><Building size={16} className="text-slate-400"/> {item.department}</div></td>
+                            <td className="py-4 px-4 text-slate-600 font-semibold tracking-wide">
+                              <a 
+                                href={`tel:${getCleanNumber(item.contact)}`}
+                                onClick={() => handleCopyAndNotify(item.contact, item.name)}
+                                className="inline-flex items-center gap-1.5 hover:text-emerald-700 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1.5 rounded-lg transition-colors border border-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-200 cursor-pointer"
+                              >
+                                <Phone size={14} /> <span>{item.contact}</span>
+                              </a>
+                            </td>
+                            <td className="py-4 px-4 font-bold text-indigo-600 border-l border-slate-50 bg-indigo-50/10">
+                              {item.time}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr><td colSpan="6" className="py-16 px-6 text-center text-slate-400 font-medium bg-slate-50/50"><div className="flex flex-col items-center justify-center gap-3"><Users size={40} className="text-slate-300" />등록된 탑승객 데이터가 없습니다.</div></td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Toast Component */}
+            {toastMessage && (
+              <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-2 animate-fadeIn z-50 whitespace-nowrap">
+                <CheckCircle2 size={18} className="text-emerald-400" />
+                <span className="font-medium text-sm md:text-base">{toastMessage}</span>
+              </div>
+            )}
+
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
