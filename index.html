@@ -49,7 +49,7 @@
         .section-title { font-size: clamp(24px, 5vw, 32px); font-weight: 700; text-align: center; margin-bottom: 40px; position: relative; word-break: keep-all; }
         .section-title::after { content: ''; display: block; width: 40px; height: 3px; background: var(--accent-color); margin: 12px auto 0; }
 
-        /* --- 모시는 글 섹션 고도화 (이미지 추가 매거진 레이아웃) --- */
+        /* --- 모시는 글 섹션 고도화 --- */
         .intro-wrapper {
             display: grid;
             grid-template-columns: 1fr 1.2fr;
@@ -62,18 +62,37 @@
             max-width: 950px;
             margin: 0 auto;
         }
+        
+        /* 외부 이미지 링크 제거 및 안정적인 CSS 벡터 그래픽 적용 */
         .intro-image {
             height: 100%;
             min-height: 350px;
             position: relative;
+            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
         }
-        /* 이미지 교체 및 렌더링 안정성 확보 */
-        .intro-image img {
-            width: 100%;
-            height: 100%;
-            min-height: 350px;
-            object-fit: cover;
-            display: block;
+        .intro-image i.vector-icon {
+            font-size: 90px;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+        .intro-image h3 { 
+            color: var(--primary-color); 
+            font-size: 24px; 
+            font-weight: 700; 
+            margin-bottom: 12px; 
+            line-height: 1.4; 
+        }
+        .intro-image p { 
+            color: var(--primary-color); 
+            font-size: 15px; 
+            opacity: 0.8; 
         }
 
         .intro-text {
@@ -127,7 +146,6 @@
             display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
             color: var(--primary-color); font-size: 24px;
         }
-        /* 가독성 극대화를 위해 accent-color(하늘색)에서 primary-color(딥네이비)로 변경 */
         .info-box strong { display: block; font-size: 16px; color: var(--primary-color); margin-bottom: 10px; font-weight: 700; }
         .info-box p { font-size: 16px; font-weight: 500; color: var(--text-dark); line-height: 1.6; word-break: keep-all; margin: 0; }
 
@@ -143,10 +161,8 @@
         @media (max-width: 850px) {
             .info-grid { grid-template-columns: 1fr; }
             .intro-wrapper { grid-template-columns: 1fr; }
-            .intro-text { padding: 30px 20px; text-align: center; } /* 텍스트는 가운데 정렬 유지 */
-            .intro-image { min-height: 250px; padding: 0; }
-            .intro-image img { min-height: 250px; }
-            /* 따옴표는 강제로 모바일에서도 양끝 정렬 유지 */
+            .intro-text { padding: 30px 20px; text-align: center; } 
+            .intro-image { min-height: 250px; padding: 40px 20px; }
             .quote-left { text-align: left !important; }
             .quote-right { text-align: right !important; }
         }
@@ -183,17 +199,17 @@
         <h2 class="section-title">초대의 글</h2>
         <div class="intro-wrapper">
             <div class="intro-image">
-                <!-- 검증되지 않은 이미지를 삭제하고, 첨단 생명공학/재생의료 연구실이 명확히 보이는 이전 안정화 이미지로 복원 -->
-                <img src="https://images.unsplash.com/photo-1532187875605-1ef6c8a7065f?auto=format&fit=crop&q=80&w=800" alt="첨단 재생의료 연구">
+                <!-- 에러가 발생하는 이미지 링크를 제거하고 첨부된 사진과 동일한 CSS/벡터 디자인으로 교체 -->
+                <i class="fa-solid fa-dna vector-icon"></i>
+                <h3>Advanced Regenerative<br>Medicine</h3>
+                <p>WFIRM Korea Research Hub</p>
             </div>
             <div class="intro-text">
-                <!-- 재생의료를 상징하는 벡터 이미지(아이콘) 배지 추가 -->
                 <div class="intro-badges">
                     <span class="badge"><i class="fa-solid fa-dna"></i> 첨단재생의료</span>
                     <span class="badge"><i class="fa-solid fa-globe"></i> 글로벌 허브</span>
                 </div>
                 
-                <!-- 구조화된 여는 따옴표 (항상 좌측 정렬) -->
                 <div class="quote-left">
                     <i class="fa-solid fa-quote-left quote-icon"></i>
                 </div>
@@ -203,7 +219,6 @@
                     본 사무국은 세계적인 재생의료 연구기관인 WFIRM과의 전략적 협력을 통해 대한민국 바이오 산업의 혁신을 주도할 것입니다. 귀한 걸음 하시어 자리를 빛내주시기 바랍니다.
                 </p>
                 
-                <!-- 구조화된 닫는 따옴표 (항상 우측 정렬) -->
                 <div class="quote-right">
                     <i class="fa-solid fa-quote-right quote-icon"></i>
                 </div>
@@ -215,9 +230,9 @@
         <h2 class="section-title">홍보 영상</h2>
         <div class="video-container">
             <div class="video-wrapper">
-                <iframe id="youtube-iframe" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe id="youtube-iframe" src="https://www.youtube.com/embed/BnPYQGmkPXA?rel=0" title="재생의료 홍보 영상" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
-            <a id="yt-link" href="#" target="_blank" class="yt-fallback">
+            <a id="yt-link" href="https://www.youtube.com/watch?v=BnPYQGmkPXA" target="_blank" class="yt-fallback">
                 <i class="fa-brands fa-youtube"></i> 영상이 보이지 않나요? 유튜브에서 직접 보기
             </a>
         </div>
@@ -258,7 +273,6 @@
 
     <script>
         const CONFIG = {
-            youtubeCode: 'BnPYQGmkPXA', 
             galleryImages: [
                 {
                     url: 'https://gib.re.kr/data/cms/74/20220415221607_5265716.jpg',
@@ -276,13 +290,6 @@
         };
 
         window.onload = function() {
-            const ytIframe = document.getElementById('youtube-iframe');
-            const ytLink = document.getElementById('yt-link');
-            const embedUrl = `https://www.youtube.com/embed/${CONFIG.youtubeCode}?enablejsapi=1&rel=0&modestbranding=1`;
-            
-            ytIframe.src = embedUrl;
-            ytLink.href = `https://www.youtube.com/watch?v=${CONFIG.youtubeCode}`;
-            
             const container = document.getElementById('gallery-container');
             CONFIG.galleryImages.forEach(imgData => {
                 const item = document.createElement('div');
