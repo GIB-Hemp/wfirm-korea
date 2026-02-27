@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WFIRM Korea 추진사무국 개소식🎊</title>
+    <title>WFIRM Korea 추진사무국 개소식</title>
     
     <!-- 폰트 및 아이콘 로드 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
@@ -22,58 +22,80 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-        body { font-family: 'Noto Sans KR', sans-serif; line-height: 1.6; color: var(--text-dark); background-color: #fff; }
+        body { font-family: 'Noto Sans KR', sans-serif; line-height: 1.7; color: var(--text-dark); background-color: #fff; -webkit-font-smoothing: antialiased; }
 
         /* --- 공통 스타일 --- */
-        section { padding: 80px 20px; max-width: 1100px; margin: 0 auto; }
-        .section-title { font-size: 32px; font-weight: 700; text-align: center; margin-bottom: 50px; position: relative; }
-        .section-title::after { content: ''; display: block; width: 50px; height: 3px; background: var(--accent-color); margin: 15px auto 0; }
+        section { padding: 60px 20px; max-width: 1100px; margin: 0 auto; }
+        .section-title { font-size: clamp(24px, 5vw, 32px); font-weight: 700; text-align: center; margin-bottom: 40px; position: relative; word-break: keep-all; }
+        .section-title::after { content: ''; display: block; width: 40px; height: 3px; background: var(--accent-color); margin: 12px auto 0; }
 
-        /* --- 내비게이션 --- */
-        nav { background: var(--primary-color); padding: 20px; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-        nav .nav-container { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        nav a { color: var(--text-white); text-decoration: none; font-weight: 700; font-size: 18px; }
-        .nav-menu { display: flex; gap: 20px; list-style: none; }
-        .nav-menu a { font-weight: 400; font-size: 15px; }
+        /* --- 내비게이션 (모바일 최적화) --- */
+        nav { background: var(--primary-color); padding: 15px 0; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        nav .nav-container { max-width: 1100px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+        nav .logo { color: var(--text-white); text-decoration: none; font-weight: 700; font-size: 20px; letter-spacing: -0.5px; }
+        .nav-menu { display: flex; gap: 15px; list-style: none; }
+        .nav-menu a { color: var(--text-white); text-decoration: none; font-weight: 400; font-size: 14px; opacity: 0.8; transition: var(--transition); }
+        .nav-menu a:hover { opacity: 1; color: var(--accent-color); }
 
-        /* --- 히어로 섹션 (홈) --- */
+        /* --- 히어로 섹션 (모바일 대응 가독성) --- */
         #hero { 
-            height: 80vh; 
-            background: linear-gradient(rgba(0, 31, 63, 0.8), rgba(0, 31, 63, 0.8)), url('https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&q=80&w=2000') center/cover; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: var(--text-white); margin-top: 60px;
+            height: 90vh; /* 모바일에서 더 몰입감 있게 변경 */
+            min-height: 500px;
+            background: linear-gradient(rgba(0, 31, 63, 0.75), rgba(0, 31, 63, 0.75)), url('https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&q=80&w=2000') center/cover; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: var(--text-white); padding: 0 20px;
         }
-        #hero h1 { font-size: 48px; margin-bottom: 20px; word-break: keep-all; }
+        #hero-subtitle { font-size: clamp(14px, 3vw, 18px); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; color: var(--accent-color); }
+        #hero h1 { font-size: clamp(28px, 8vw, 56px); line-height: 1.2; margin-bottom: 20px; word-break: keep-all; font-weight: 700; }
         #hero h1 span { color: var(--accent-color); }
-        #hero p { font-size: 20px; margin-bottom: 30px; opacity: 0.9; }
+        #hero p.hero-info { font-size: clamp(16px, 4vw, 20px); margin-bottom: 35px; opacity: 0.9; word-break: keep-all; }
+        .btn-main { background: var(--accent-color); color: #001f3f; padding: 16px 40px; border-radius: 50px; text-decoration: none; font-weight: 700; transition: var(--transition); display: inline-block; }
+        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,229,255,0.3); }
 
-        /* --- 모시는 글 (About) --- */
-        .intro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
-        .intro-img img { width: 100%; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .intro-text h3 { color: var(--primary-color); margin-bottom: 20px; }
+        /* --- 초대의 글 --- */
+        .intro-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; align-items: center; }
+        .intro-img img { width: 100%; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); display: block; }
+        .intro-text h3 { color: var(--primary-color); font-size: 24px; margin-bottom: 15px; word-break: keep-all; }
+        .intro-text p { font-size: 16px; color: #444; word-break: keep-all; text-align: justify; }
 
         /* --- 영상 섹션 --- */
-        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+        .video-container { max-width: 900px; margin: 0 auto; }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); background: #000; }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
-        /* --- 갤러리 섹션 --- */
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .gallery-item { height: 250px; overflow: hidden; border-radius: 10px; cursor: pointer; position: relative; }
-        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition); }
-        .gallery-item:hover img { transform: scale(1.1); }
+        /* --- 일정 및 정보 카드 --- */
+        .info-card { background: var(--bg-light); padding: 30px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.05); }
+        .info-item { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 25px; }
+        .info-item:last-child { margin-bottom: 0; }
+        .info-item .icon-box { width: 50px; height: 50px; background: var(--text-white); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .info-item i { color: var(--primary-color); font-size: 20px; }
+        .info-item strong { display: block; font-size: 14px; color: #777; margin-bottom: 4px; }
+        .info-item p { font-size: 17px; font-weight: 500; color: var(--text-dark); }
 
-        /* --- 일정 및 오시는 길 --- */
-        .info-card { background: var(--bg-light); padding: 40px; border-radius: 15px; margin-bottom: 20px; }
-        .info-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px; }
-        .info-item i { color: var(--primary-color); font-size: 24px; margin-top: 5px; }
+        /* --- 갤러리 섹션 (모바일 그리드 최적화) --- */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        .gallery-item { height: 250px; overflow: hidden; border-radius: 15px; position: relative; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition); }
+        .gallery-item:hover img { transform: scale(1.05); }
 
         /* --- 푸터 --- */
-        footer { background: var(--primary-color); color: #ccc; text-align: center; padding: 40px 20px; }
+        footer { background: var(--primary-color); color: #8899aa; text-align: center; padding: 60px 20px; font-size: 14px; }
+        footer p { margin-bottom: 10px; }
         
-        /* 모바일 대응 */
-        @media (max-width: 768px) {
-            .intro-grid { grid-template-columns: 1fr; }
-            #hero h1 { font-size: 32px; }
-            nav .nav-menu { display: none; }
+        /* --- 모바일 대응 (Breakpoints) --- */
+        @media (max-width: 850px) {
+            .intro-grid { grid-template-columns: 1fr; gap: 30px; }
+            .intro-img { order: 2; }
+            .intro-text { order: 1; text-align: center; }
+            .intro-text p { text-align: center; }
+        }
+
+        @media (max-width: 600px) {
+            nav .nav-container { justify-content: center; }
+            .nav-menu { display: none; } /* 모바일에서는 하단 푸터나 다른 곳으로 유도 가능하지만, 단순함을 위해 숨김 */
+            section { padding: 50px 20px; }
+            .info-card { padding: 20px; }
+            .info-item p { font-size: 15px; }
+            #hero { height: 80vh; }
         }
     </style>
 </head>
@@ -81,12 +103,12 @@
 
     <nav>
         <div class="nav-container">
-            <a href="#">WFIRM Korea 추진사무국 개소식🎊</a>
+            <a href="#" class="logo">WFIRM Korea</a>
             <ul class="nav-menu">
                 <li><a href="#about">초대의 글</a></li>
                 <li><a href="#video">홍보영상</a></li>
                 <li><a href="#schedule">행사안내</a></li>
-                <li><a href="#gallery">사무국 전경</a></li>
+                <li><a href="#gallery">전경</a></li>
             </ul>
         </div>
     </nav>
@@ -94,8 +116,8 @@
     <header id="hero">
         <p id="hero-subtitle">Innovative Bio-Industry Hub</p>
         <h1 id="hero-title">첨단재생의료산업<br><span>WFIRM Korea</span> 추진사무국 개소식</h1>
-        <p>2026. 03. 05 (목) 14:00 | 동물세포실증지원센터</p>
-        <a href="#about" style="background: var(--accent-color); color: #000; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: 700;">자세히 보기</a>
+        <p class="hero-info">2026. 03. 05 (목) 14:00<br>동물세포실증지원센터 1층</p>
+        <a href="#about" class="btn-main">초대장 확인하기</a>
     </header>
 
     <section id="about">
@@ -109,17 +131,18 @@
                 <p id="welcome-text">
                     안녕하십니까?<br><br>
                     경상북도가 글로벌 재생의료의 거점으로 도약하기 위한 첫 단추인 WFIRM Korea 추진 사무국이 개소합니다.<br><br>
-                    본 사무국은 세계적인 재생의료 연구기관인 WFIRM과의 협력을 통해 대한민국 바이오 산업의 혁신을 주도할 것입니다. 귀한 걸음 하시어 자리를 빛내주시기 바랍니다.
+                    본 사무국은 세계적인 재생의료 연구기관인 WFIRM과의 전략적 협력을 통해 대한민국 바이오 산업의 혁신을 주도하고 지역 경제의 새로운 활력을 불어넣을 것입니다. 귀한 걸음 하시어 자리를 빛내주시기 바랍니다.
                 </p>
             </div>
         </div>
     </section>
 
-    <section id="video" style="background: var(--bg-light);">
+    <section id="video" style="background: var(--bg-light); padding: 80px 20px;">
         <h2 class="section-title">홍보 영상</h2>
-        <div class="video-wrapper">
-            <!-- 유튜브 주소 변경은 하단 스크립트에서 가능합니다 -->
-            <iframe id="youtube-iframe" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <div class="video-container">
+            <div class="video-wrapper">
+                <iframe id="youtube-iframe" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
         </div>
     </section>
 
@@ -127,21 +150,21 @@
         <h2 class="section-title">행사 일정 및 장소</h2>
         <div class="info-card">
             <div class="info-item">
-                <i class="fa-regular fa-clock"></i>
+                <div class="icon-box"><i class="fa-regular fa-clock"></i></div>
                 <div>
                     <strong>일시</strong>
                     <p>2026년 3월 5일 (목) 오후 2시</p>
                 </div>
             </div>
             <div class="info-item">
-                <i class="fa-solid fa-location-dot"></i>
+                <div class="icon-box"><i class="fa-solid fa-location-dot"></i></div>
                 <div>
                     <strong>장소</strong>
                     <p>경상북도 안동시 풍산읍 산업단지길 48-27<br>동물세포실증지원센터 1층 컨퍼런스홀</p>
                 </div>
             </div>
             <div class="info-item">
-                <i class="fa-solid fa-phone"></i>
+                <div class="icon-box"><i class="fa-solid fa-phone"></i></div>
                 <div>
                     <strong>문의</strong>
                     <p>054-XXX-XXXX (WFIRM Korea 추진 사무국)</p>
@@ -159,24 +182,14 @@
 
     <footer>
         <p>&copy; 2026 WFIRM Korea Promotion Office. All Rights Reserved.</p>
-        <p style="font-size: 12px; margin-top: 10px; opacity: 0.6;">본 홈페이지는 사무국 개소식을 위한 안내용 임시 페이지입니다.</p>
+        <p style="font-size: 12px; opacity: 0.5;">본 페이지는 사무국 개소식 안내를 위한 공식 임시 홈페이지입니다.</p>
     </footer>
 
     <!-- 콘텐츠 관리 스크립트 -->
     <script>
-        /**
-         * [행복배달부님 필독: 콘텐츠 변경 가이드]
-         * 1. 사진 주소 바꾸기: 아래 'images' 배열 안의 따옴표 부분을 바꾸시면 됩니다.
-         * 2. 영상 바꾸기: 'youtubeCode'에 유튜브 영상 주소 끝의 코드(v=뒤에 오는 값)를 넣으세요.
-         */
         const CONFIG = {
-            // 유튜브 영상 코드 (예: v=abcdefgh 인 경우 'abcdefgh'만 입력)
             youtubeCode: 'M7lc1UVf-VE', 
-            
-            // 메인 인사말 옆 이미지
             introImage: 'https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&q=80&w=800',
-            
-            // 하단 갤러리 이미지 리스트 (원하는 만큼 추가/삭제 가능)
             galleryImages: [
                 'https://images.unsplash.com/photo-1532187875605-1ef6c8a7065f?auto=format&fit=crop&q=80&w=600',
                 'https://images.unsplash.com/photo-1579165466541-74e2b49a9952?auto=format&fit=crop&q=80&w=600',
@@ -184,7 +197,6 @@
             ]
         };
 
-        // 데이터 적용 함수
         window.onload = function() {
             // 영상 적용
             document.getElementById('youtube-iframe').src = `https://www.youtube.com/embed/${CONFIG.youtubeCode}`;
@@ -200,10 +212,7 @@
                 item.innerHTML = `<img src="${url}" alt="Gallery Image">`;
                 container.appendChild(item);
             });
-
-            console.log("콘텐츠가 성공적으로 로드되었습니다.");
         };
     </script>
 </body>
 </html>
-
